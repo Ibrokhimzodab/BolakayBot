@@ -37,6 +37,8 @@ class FirstState(StatesGroup):
     subMenu = State()
     type = State()
     sale = State()
+    photo = State()
+    description = State()
     fromLoc = State()
     whereLoc = State()
     send = State()

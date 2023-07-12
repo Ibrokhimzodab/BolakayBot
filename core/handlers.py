@@ -3,7 +3,7 @@ from .model import User
 from db.state import RegisterState, FirstState
 from .keyboards import lang_keyboard, contact_keyboard, menuKeyboard, subMenuKeyboard, subMenuKeyboard2, typeKeyboard, saleKeyboard, sendKeyboard
 from .i18 import chooseLang, sendPhone, chooseName, registrationFinished, menuKb, subMenuKb, subMenuKb2, typeKb, saleKb, \
-    sendKb, choose, fromLoc, whereLoc, mainMenu, sent, langKb
+    sendKb, choose, fromLoc, whereLoc, mainMenu, sent, langKb, sendPhoto, sendDescription
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.dispatcher.filters import Text
 
@@ -119,6 +119,32 @@ async def sale(message: types.Message, state: FSMContext):
         data["sale"] = message.text
         user = User.getUser(message.chat.id)
 
+        if message.text == saleKb[0][1] or message.text == saleKb[1][1]:
+            await FirstState.description.set()
+            data["photo"] = None
+            await bot.send_message(message.chat.id, sendDescription[user.language], reply_markup=types.ReplyKeyboardRemove())
+        else:
+            await FirstState.next()
+            await bot.send_message(message.chat.id, sendPhoto[user.language], reply_markup=types.ReplyKeyboardRemove())
+
+
+@dp.message_handler(lambda message: types.ContentType.PHOTO, content_types=['photo'], state=FirstState.photo)
+async def photo(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data["photo"] = message.photo[-1].file_id
+        user = User.getUser(message.chat.id)
+
+        await FirstState.next()
+
+        await bot.send_message(message.chat.id, sendDescription[user.language], reply_markup=types.ReplyKeyboardRemove())
+
+
+@dp.message_handler(lambda message: message.text, state=FirstState.description)
+async def description(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data["description"] = message.text
+        user = User.getUser(message.chat.id)
+
         await FirstState.next()
 
         await bot.send_message(message.chat.id, fromLoc[user.language], reply_markup=types.ReplyKeyboardRemove())
@@ -144,18 +170,24 @@ async def whereLocFunc(message: types.Message, state: FSMContext):
         subMenuData = data["subMenu"]
         typeData = data["type"]
         saleData = data["sale"]
+        desc = data["description"]
         fromLocData = data["fromLoc"]
+        username = message.from_user.username
         if typeData is None:
             data["text"] = f"{subMenuData} {saleData}\n" \
-                   f"{fromLocData} --> {message.text}\n" \
-                   f"Тел. {user.phone}, {user.name}"
+                           f"{desc}\n" \
+                           f"{fromLocData} --> {message.text}\n" \
+                           f"Тел. {user.phone}, {user.name}, @{username}"
         else:
             data["text"] = f"{subMenuData} {typeData} {saleData}\n" \
+                           f"{desc}\n" \
                            f"{fromLocData} --> {message.text}\n" \
-                           f"Тел. {user.phone}, {user.name}"
+                           f"Тел. {user.phone}, {user.name}, @{username}"
         await FirstState.next()
-
-        await bot.send_message(message.chat.id, data["text"], reply_markup=sendKeyboard[user.language])
+        if data["photo"] is None:
+            await bot.send_message(message.chat.id, data["text"], reply_markup=sendKeyboard[user.language])
+        else:
+            await bot.send_photo(message.chat.id, data["photo"], caption=data["text"], reply_markup=sendKeyboard[user.language])
 
 
 @dp.message_handler(Text(equals=[sendKb[0][0], sendKb[0][1], sendKb[1][0], sendKb[1][1]]), state=FirstState.send)
@@ -164,7 +196,10 @@ async def send(message: types.Message, state: FSMContext):
 
         user = User.getUser(message.chat.id)
         if message.text == sendKb[0][0] or message.text == sendKb[1][0]:
-            await bot.send_message(-1001560735654, data["text"])
+            if data["photo"] is None:
+                await bot.send_message(-1001560735654, data["text"])
+            else:
+                await bot.send_photo(-1001560735654, data["photo"], caption=data["text"])
 
             await bot.send_message(message.chat.id, sent[user.language])
 
