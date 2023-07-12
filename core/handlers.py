@@ -3,7 +3,7 @@ from .model import User
 from db.state import RegisterState, FirstState
 from .keyboards import lang_keyboard, contact_keyboard, menuKeyboard, subMenuKeyboard, subMenuKeyboard2, typeKeyboard, saleKeyboard, sendKeyboard
 from .i18 import chooseLang, sendPhone, chooseName, registrationFinished, menuKb, subMenuKb, subMenuKb2, typeKb, saleKb, \
-    sendKb, choose, fromLoc, whereLoc, mainMenu, sent
+    sendKb, choose, fromLoc, whereLoc, mainMenu, sent, langKb
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.dispatcher.filters import Text
 
@@ -54,21 +54,33 @@ async def receiver_phone(message: types.contact, state: FSMContext):
         await state.finish()
 
 
-@dp.message_handler(Text(equals=[menuKb[0][0], menuKb[1][0], menuKb[1][0], menuKb[1][1]]))
+@dp.message_handler(Text(equals=[menuKb[0][0], menuKb[0][1], menuKb[0][2], menuKb[1][0], menuKb[1][1], menuKb[1][2]]))
 async def menu(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["menu"] = message.text
         user = User.getUser(message.chat.id)
 
-        await FirstState.subMenu.set()
         if message.text == menuKb[0][0] or message.text == menuKb[1][0]:
+            await FirstState.subMenu.set()
             await bot.send_message(message.chat.id, choose[user.language], reply_markup=subMenuKeyboard[user.language])
+        elif message.text == menuKb[0][2] or message.text == menuKb[1][2]:
+            await bot.send_message(message.chat.id, chooseLang[0], reply_markup=lang_keyboard)
         else:
+            await FirstState.subMenu.set()
             await bot.send_message(message.chat.id, choose[user.language], reply_markup=subMenuKeyboard2[user.language])
 
 
-@dp.message_handler(Text(equals=[subMenuKb[0][0], subMenuKb[0][1], subMenuKb[1][0], subMenuKb[1][1],
-                                 subMenuKb2[0][0], subMenuKb2[0][1], subMenuKb2[1][0], subMenuKb2[1][1]]),
+@dp.message_handler(Text(equals=[langKb[0], langKb[1]]))
+async def change_lang(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        lang = 0 if message.text == "uz" else 1
+        user = User.getUser(message.chat.id)
+        User.changeLang(user.userId, lang)
+        await bot.send_message(message.chat.id, mainMenu[lang], reply_markup=menuKeyboard[lang])
+
+
+@dp.message_handler(Text(equals=[subMenuKb[0][0], subMenuKb[0][1], subMenuKb[0][2], subMenuKb[1][0], subMenuKb[1][1], subMenuKb[1][2],
+                                 subMenuKb2[0][0], subMenuKb2[0][1], subMenuKb2[0][2], subMenuKb2[1][0], subMenuKb2[1][1], subMenuKb2[1][2]]),
                     state=FirstState.subMenu)
 async def subMenu(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -146,15 +158,15 @@ async def whereLocFunc(message: types.Message, state: FSMContext):
         await bot.send_message(message.chat.id, data["text"], reply_markup=sendKeyboard[user.language])
 
 
-@dp.message_handler(Text(equals=sendKb), state=FirstState.send)
+@dp.message_handler(Text(equals=[sendKb[0][0], sendKb[0][1], sendKb[1][0], sendKb[1][1]]), state=FirstState.send)
 async def send(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
 
         user = User.getUser(message.chat.id)
+        if message.text == sendKb[0][0] or message.text == sendKb[1][0]:
+            await bot.send_message(-1001560735654, data["text"])
 
-        await bot.send_message(-1001560735654, data["text"])
-
-        await bot.send_message(message.chat.id, sent[user.language])
+            await bot.send_message(message.chat.id, sent[user.language])
 
         await bot.send_message(message.chat.id, mainMenu[user.language], reply_markup=menuKeyboard[user.language])
 

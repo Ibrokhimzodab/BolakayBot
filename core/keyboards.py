@@ -13,6 +13,9 @@ menuKeyboard = [
         [
             types.KeyboardButton(text=menuKb[0][0]),
             types.KeyboardButton(text=menuKb[0][1])
+        ],
+        [
+            types.KeyboardButton(text=menuKb[0][2])
         ]
     ], resize_keyboard=True),
 
@@ -20,6 +23,9 @@ menuKeyboard = [
         [
             types.KeyboardButton(text=menuKb[1][0]),
             types.KeyboardButton(text=menuKb[1][1])
+        ],
+        [
+            types.KeyboardButton(text=menuKb[1][2])
         ]
     ], resize_keyboard=True)
 ]
@@ -111,13 +117,15 @@ contact_keyboard = [
 sendKeyboard = [
     types.ReplyKeyboardMarkup([
         [
-            types.KeyboardButton(text=sendKb[0])
+            types.KeyboardButton(text=sendKb[0][0]),
+            types.KeyboardButton(text=sendKb[0][1])
         ]
     ], resize_keyboard=True),
 
     types.ReplyKeyboardMarkup([
         [
-            types.KeyboardButton(text=sendKb[1])
+            types.KeyboardButton(text=sendKb[1][0]),
+            types.KeyboardButton(text=sendKb[1][1])
         ]
     ], resize_keyboard=True)
 ]

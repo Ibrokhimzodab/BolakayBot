@@ -50,6 +50,12 @@ class User(Base):
         user = session.query(User).filter_by(chatId=chatId).first()
         return user
 
+    @classmethod
+    def changeLang(cls, userId, lang):
+        user = session.query(User).filter_by(userId=userId).first()
+        user.language = lang
+        user.save()
+
     def save(self):
         session.add(self)
         session.commit()
