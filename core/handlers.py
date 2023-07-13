@@ -1,5 +1,5 @@
 from app import dp, bot, types
-from .model import User
+from .model import User, Group
 from db.state import RegisterState, FirstState
 from .keyboards import lang_keyboard, contact_keyboard, menuKeyboard, subMenuKeyboard, subMenuKeyboard2, typeKeyboard, saleKeyboard, sendKeyboard
 from .i18 import chooseLang, sendPhone, chooseName, registrationFinished, menuKb, subMenuKb, subMenuKb2, typeKb, saleKb, \
@@ -196,10 +196,11 @@ async def send(message: types.Message, state: FSMContext):
 
         user = User.getUser(message.chat.id)
         if message.text == sendKb[0][0] or message.text == sendKb[1][0]:
-            if data["photo"] is None:
-                await bot.send_message(-1001560735654, data["text"])
-            else:
-                await bot.send_photo(-1001560735654, data["photo"], caption=data["text"])
+            for i in Group.getAll():
+                if data["photo"] is None:
+                    await bot.send_message(i.groupId, data["text"])
+                else:
+                    await bot.send_photo(i.groupId, data["photo"], caption=data["text"])
 
             await bot.send_message(message.chat.id, sent[user.language])
 

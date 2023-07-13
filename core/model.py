@@ -13,6 +13,10 @@ class Group(Base):
         self.groupId = groupId
         self.name = name
 
+    @classmethod
+    def getAll(cls):
+        return session.query(Group).all()
+
     def save(self):
         session.add(self)
         session.commit()
