@@ -57,15 +57,16 @@ async def receiver_phone(message: types.contact, state: FSMContext):
 @dp.message_handler(Text(equals=[menuKb[0][0], menuKb[0][1], menuKb[0][2], menuKb[1][0], menuKb[1][1], menuKb[1][2]]))
 async def menu(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data["menu"] = message.text
         user = User.getUser(message.chat.id)
 
         if message.text == menuKb[0][0] or message.text == menuKb[1][0]:
+            data["menu"] = 1
             await FirstState.subMenu.set()
             await bot.send_message(message.chat.id, choose[user.language], reply_markup=subMenuKeyboard[user.language])
         elif message.text == menuKb[0][2] or message.text == menuKb[1][2]:
             await bot.send_message(message.chat.id, chooseLang[0], reply_markup=lang_keyboard)
         else:
+            data["menu"] = 2
             await FirstState.subMenu.set()
             await bot.send_message(message.chat.id, choose[user.language], reply_markup=subMenuKeyboard2[user.language])
 
@@ -196,7 +197,7 @@ async def send(message: types.Message, state: FSMContext):
 
         user = User.getUser(message.chat.id)
         if message.text == sendKb[0][0] or message.text == sendKb[1][0]:
-            for i in Group.getAll():
+            for i in Group.getAllWithTypeId(data["menu"]):
                 if data["photo"] is None:
                     await bot.send_message(i.groupId, data["text"])
                 else:

@@ -8,14 +8,20 @@ class Group(Base):
     id = Column(Integer, primary_key=True)
     groupId = Column(BigInteger)
     name = Column(String)
+    typeId = Column(Integer)
 
-    def __init__(self, groupId, name):
+    def __init__(self, groupId, name, typeId):
         self.groupId = groupId
         self.name = name
+        self.typeId = typeId
 
     @classmethod
     def getAll(cls):
         return session.query(Group).all()
+
+    @classmethod
+    def getAllWithTypeId(cls, typeId):
+        return session.query(Group).filter_by(typeId=typeId).all()
 
     def save(self):
         session.add(self)
