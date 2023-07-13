@@ -1,5 +1,16 @@
 from aiogram import types
-from .i18 import menuKb, saleKb, contact, langKb, subMenuKb, subMenuKb2, typeKb, sendKb
+from .i18 import menuKb, saleKb, contact, langKb, subMenuKb, subMenuKb2, typeKb, sendKb, menuAdminKb
+
+menuAdminKeyboard = types.ReplyKeyboardMarkup([
+    [
+        types.KeyboardButton(text=menuAdminKb[0]),
+        types.KeyboardButton(text=menuAdminKb[1])
+    ],
+    [
+        types.KeyboardButton(text=menuAdminKb[2]),
+        types.KeyboardButton(text=menuAdminKb[3])
+    ]
+], resize_keyboard=True)
 
 lang_keyboard = types.ReplyKeyboardMarkup([
     [

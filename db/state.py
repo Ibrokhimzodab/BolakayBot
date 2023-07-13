@@ -42,3 +42,8 @@ class FirstState(StatesGroup):
     fromLoc = State()
     whereLoc = State()
     send = State()
+
+
+class AdminState(StatesGroup):
+    menu = State()
+    subMenu = State()

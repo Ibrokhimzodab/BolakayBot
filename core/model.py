@@ -31,6 +31,7 @@ class User(Base):
     name = Column(String)
     phone = Column(String, unique=True)
     language = Column(Integer)
+    isAdmin = Column(Boolean)
 
     def __init__(self, userId, chatId, name, phone, language):
         self.userId = userId
@@ -38,6 +39,11 @@ class User(Base):
         self.name = name
         self.phone = phone
         self.language = language
+
+    @classmethod
+    def isUserAdmin(cls, userId):
+        user = session.query(User).filter_by(userId=userId).first()
+        return user.isAdmin
 
     @classmethod
     def isPhoneRegistered(cls, phone):
@@ -53,6 +59,10 @@ class User(Base):
     def getUser(cls, chatId):
         user = session.query(User).filter_by(chatId=chatId).first()
         return user
+
+    @classmethod
+    def getAllUsers(cls):
+        return session.query(User).all()
 
     @classmethod
     def changeLang(cls, userId, lang):

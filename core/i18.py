@@ -92,3 +92,12 @@ sendDescription = [
     "Тариф йозинг",
     "Отправьте описание"
 ]
+
+menuAdminKb = [
+    "Get all users",
+    "Add group",
+    "Add admin"
+    "Send promotion",
+]
+
+mainMenuAdmin = "Admin menu"
