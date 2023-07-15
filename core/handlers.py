@@ -196,12 +196,16 @@ async def send(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
 
         user = User.getUser(message.chat.id)
+        if not user.isActive:
+            await bot.send_message(message.chat.id, mainMenu[user.language], reply_markup=menuKeyboard[user.language])
+            return await state.finish()
         if message.text == sendKb[0][0] or message.text == sendKb[1][0]:
             for i in Group.getAllWithTypeId(data["menu"]):
-                if data["photo"] is None:
-                    await bot.send_message(i.groupId, data["text"])
-                else:
-                    await bot.send_photo(i.groupId, data["photo"], caption=data["text"])
+                if i.isActive:
+                    if data["photo"] is None:
+                        await bot.send_message(i.groupId, data["text"])
+                    else:
+                        await bot.send_photo(i.groupId, data["photo"], caption=data["text"])
 
             await bot.send_message(message.chat.id, sent[user.language])
 

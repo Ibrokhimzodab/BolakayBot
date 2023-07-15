@@ -9,11 +9,13 @@ class Group(Base):
     groupId = Column(BigInteger)
     name = Column(String)
     typeId = Column(Integer)
+    isActive = Column(Boolean)
 
     def __init__(self, groupId, name, typeId):
         self.groupId = groupId
         self.name = name
         self.typeId = typeId
+        self.isActive = True
 
     @classmethod
     def getAll(cls):
@@ -37,6 +39,7 @@ class User(Base):
     name = Column(String)
     phone = Column(String, unique=True)
     language = Column(Integer)
+    isActive = Column(Boolean)
 
     def __init__(self, userId, chatId, name, phone, language):
         self.userId = userId
@@ -44,6 +47,7 @@ class User(Base):
         self.name = name
         self.phone = phone
         self.language = language
+        self.isActive = True
 
     @classmethod
     def isPhoneRegistered(cls, phone):
