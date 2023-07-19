@@ -15,5 +15,5 @@ dp = Dispatcher(bot, storage=storage)
 
 if __name__ == "__main__":
     from core.handlers import dp
-    # from admin
+    from core.adminHandlers import dp
     executor.start_polling(dp)

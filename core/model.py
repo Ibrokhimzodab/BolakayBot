@@ -19,7 +19,13 @@ class Group(Base):
 
     @classmethod
     def getAll(cls):
-        return session.query(Group).all()
+        return session.query(Group).order_by(Group.id)
+
+    @classmethod
+    def changeGroupStatus(cls, Id):
+        group = session.query(Group).filter_by(id=Id).first()
+        group.isActive = not group.isActive
+        group.save()
 
     @classmethod
     def getAllWithTypeId(cls, typeId):
@@ -40,6 +46,7 @@ class User(Base):
     phone = Column(String, unique=True)
     language = Column(Integer)
     isActive = Column(Boolean)
+    isAdmin = Column(Boolean)
 
     def __init__(self, userId, chatId, name, phone, language):
         self.userId = userId
@@ -48,6 +55,7 @@ class User(Base):
         self.phone = phone
         self.language = language
         self.isActive = True
+        self.isAdmin = False
 
     @classmethod
     def isPhoneRegistered(cls, phone):
@@ -68,6 +76,27 @@ class User(Base):
     def changeLang(cls, userId, lang):
         user = session.query(User).filter_by(userId=userId).first()
         user.language = lang
+        user.save()
+
+    @classmethod
+    def getAllUsers(cls):
+        return session.query(User).order_by(User.id)
+
+    @classmethod
+    def isUserAdmin(cls, chatId):
+        user = session.query(User).filter_by(chatId=chatId, isAdmin=True).first()
+        return user is not None
+
+    @classmethod
+    def setUserToAdmin(cls, Id):
+        user = session.query(User).filter_by(id=Id).first()
+        user.isAdmin = True
+        user.save()
+
+    @classmethod
+    def changeUserStatus(cls, Id):
+        user = session.query(User).filter_by(id=Id).first()
+        user.isActive = not user.isActive
         user.save()
 
     def save(self):

@@ -42,3 +42,9 @@ class FirstState(StatesGroup):
     fromLoc = State()
     whereLoc = State()
     send = State()
+
+
+class AdminState(StatesGroup):
+    menu = State()
+    addState = State()
+    banState = State()
